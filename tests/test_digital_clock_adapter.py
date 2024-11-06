@@ -1,12 +1,13 @@
 import unittest
 from datetime import datetime
 from clocks.digital_clock_adapter import DigitalClockAdapter
-
+from clocks.analog_clock import AnalogClock
 
 class TestDigitalClockAdapter(unittest.TestCase):
     def setUp(self):
         """Создает экземпляр DigitalClockAdapter перед каждым тестом."""
-        self.adapter = DigitalClockAdapter()
+        analog_clock = AnalogClock()  # Создаем экземпляр AnalogClock
+        self.adapter = DigitalClockAdapter(analog_clock)  # Передаем его в DigitalClockAdapter
 
     def test_set_date_time(self):
         """Проверяет правильность установки времени через адаптер."""
@@ -50,7 +51,6 @@ class TestDigitalClockAdapter(unittest.TestCase):
         self.assertEqual(self.adapter.get_hour_angle(), 0)   # 0 degrees
         self.assertEqual(self.adapter.get_minute_angle(), 0)  # 0 degrees
         self.assertEqual(self.adapter.get_second_angle(), 0)  # 0 degrees
-
 
 if __name__ == '__main__':
     unittest.main()

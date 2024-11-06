@@ -1,7 +1,7 @@
 from datetime import datetime
 from dataclasses import dataclass
 from interfaces.base_digital_clock import BaseDigitalClock
-from clocks.analog_clock import AnalogClock
+from interfaces.base_analog_clock import BaseAnalogClock
 from consts.date_consts import DayNightDivision
 
 # Константы для преобразования времени в углы
@@ -13,6 +13,7 @@ SECONDS_TO_DEGREES = 6  # 360 / 60 секунд
 HOURS_IN_HALF_DAY = 12
 MIDNIGHT_HOUR = 0
 
+
 @dataclass
 class ClockAngles:
     hour_angle: float
@@ -20,16 +21,19 @@ class ClockAngles:
     second_angle: float
     day_night_division: DayNightDivision
 
+
 class DigitalClockAdapter(BaseDigitalClock):
     """
     Адаптер для использования AnalogClock через интерфейс BaseDigitalClock.
     """
 
-    def __init__(self):
+    def __init__(self, analog_clock: BaseAnalogClock):
         """
-        Инициализирует новый экземпляр DigitalClockAdapter и создает экземпляр AnalogClock.
+        Инициализирует новый экземпляр DigitalClockAdapter с экземпляром BaseAnalogClock.
+
+        :param analog_clock: экземпляр, реализующий интерфейс BaseAnalogClock.
         """
-        self.analog_clock = AnalogClock()
+        self.analog_clock = analog_clock
 
     def set_date_time(self, date: datetime) -> None:
         """

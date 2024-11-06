@@ -1,13 +1,15 @@
 from datetime import datetime
 from clocks.digital_clock_adapter import DigitalClockAdapter
-
+from clocks.analog_clock import AnalogClock
 
 def main():
     """
     Главная функция, запускающая приложение для работы с цифровыми часами.
     Запрашивает у пользователя время и отображает его.
     """
-    digital_clock = DigitalClockAdapter()
+    # Передаем экземпляр AnalogClock в DigitalClockAdapter
+    analog_clock = AnalogClock()
+    digital_clock = DigitalClockAdapter(analog_clock)
 
     while True:
         user_input = input("Введите время в формате ГГГГ-ММ-ДД ЧЧ:ММ:СС: ")
@@ -26,7 +28,6 @@ def main():
     print(f"Угол стрелки часов: {digital_clock.get_hour_angle()}°")
     print(f"Угол минутной стрелки: {digital_clock.get_minute_angle()}°")
     print(f"Угол секундной стрелки: {digital_clock.get_second_angle()}°")
-
 
 if __name__ == "__main__":
     main()
