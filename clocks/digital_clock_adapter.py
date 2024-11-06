@@ -1,11 +1,10 @@
-# clocks/digital_clock_adapter.py
-
 from datetime import datetime
 from interfaces.base_digital_clock import BaseDigitalClock
 from interfaces.base_analog_clock import BaseAnalogClock
 from consts.date_consts import DayNightDivision
 from consts.clock_consts import ClockConstants  # Импорт нового класса с константами
 from clocks.dto.clock_angles_dto import ClockAngles  # Импорт DTO
+
 
 class DigitalClockAdapter(BaseDigitalClock):
     """
@@ -51,7 +50,18 @@ class DigitalClockAdapter(BaseDigitalClock):
         year = self.analog_clock.get_year()
         month = self.analog_clock.get_month()
         day = self.analog_clock.get_day()
-        hour, minute, second = self._convert_angles_to_time()
+        angles = self._convert_angles_to_time()
+
+        # Конвертируем углы обратно в часы, минуты и секунды
+        hour = int(angles.hour_angle / ClockConstants.HOURS_TO_DEGREES) % ClockConstants.HOURS_IN_HALF_DAY
+        minute = int(angles.minute_angle / ClockConstants.MINUTES_TO_DEGREES)
+        second = int(angles.second_angle / ClockConstants.SECONDS_TO_DEGREES)
+
+        # Обработка AM/PM для корректного значения часа
+        if angles.day_night_division == DayNightDivision.PM and hour != ClockConstants.HOURS_IN_HALF_DAY:
+            hour += ClockConstants.HOURS_IN_HALF_DAY
+        if angles.day_night_division == DayNightDivision.AM and hour == ClockConstants.HOURS_IN_HALF_DAY:
+            hour = ClockConstants.MIDNIGHT_HOUR
 
         return datetime(year, month, day, hour, minute, second)
 
@@ -92,20 +102,28 @@ class DigitalClockAdapter(BaseDigitalClock):
         day_night_division = DayNightDivision.AM if date.hour < ClockConstants.HOURS_IN_HALF_DAY else DayNightDivision.PM
         return ClockAngles(hour_angle, minute_angle, second_angle, day_night_division)
 
-    def _convert_angles_to_time(self):
+    def _convert_angles_to_time(self) -> ClockAngles:
         """
-        Преобразует углы в часы, минуты и секунды.
+        Преобразует углы в часы, минуты и секунды и возвращает объект ClockAngles.
 
-        :return: кортеж из часов, минут и секунд.
+        :return: объект ClockAngles с углами для часов, минут, секунд и делением дня/ночи.
         """
         hour = int(self.analog_clock.get_hour_angle() / ClockConstants.HOURS_TO_DEGREES) % ClockConstants.HOURS_IN_HALF_DAY
         minute = int(self.analog_clock.get_minute_angle() / ClockConstants.MINUTES_TO_DEGREES)
         second = int(self.analog_clock.get_second_angle() / ClockConstants.SECONDS_TO_DEGREES)
 
+        # Определение деления дня/ночи
+        day_night_division = self.analog_clock.day_night_division
+
         # Обработка AM/PM
-        if self.analog_clock.day_night_division == DayNightDivision.PM and hour != ClockConstants.HOURS_IN_HALF_DAY:
+        if day_night_division == DayNightDivision.PM and hour != ClockConstants.HOURS_IN_HALF_DAY:
             hour += ClockConstants.HOURS_IN_HALF_DAY
-        if self.analog_clock.day_night_division == DayNightDivision.AM and hour == ClockConstants.HOURS_IN_HALF_DAY:
+        if day_night_division == DayNightDivision.AM and hour == ClockConstants.HOURS_IN_HALF_DAY:
             hour = ClockConstants.MIDNIGHT_HOUR
 
-        return hour, minute, second
+        # Конвертируем часы, минуты и секунды обратно в углы
+        hour_angle = hour * ClockConstants.HOURS_TO_DEGREES
+        minute_angle = minute * ClockConstants.MINUTES_TO_DEGREES
+        second_angle = second * ClockConstants.SECONDS_TO_DEGREES
+
+        return ClockAngles(hour_angle, minute_angle, second_angle, day_night_division)
