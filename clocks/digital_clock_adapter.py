@@ -1,8 +1,10 @@
+# clocks/digital_clock_adapter.py
+
 from datetime import datetime
-from dataclasses import dataclass
 from interfaces.base_digital_clock import BaseDigitalClock
 from interfaces.base_analog_clock import BaseAnalogClock
 from consts.date_consts import DayNightDivision
+from clocks.dto.clock_angles_dto import ClockAngles  # Импорт DTO
 
 # Константы для преобразования времени в углы
 HOURS_TO_DEGREES = 30  # 360 / 12 часов
@@ -12,24 +14,6 @@ SECONDS_TO_DEGREES = 6  # 360 / 60 секунд
 # Константы для работы с временем
 HOURS_IN_HALF_DAY = 12
 MIDNIGHT_HOUR = 0
-
-
-@dataclass
-class ClockAngles:
-    """
-    Датакласс для хранения углов часовой, минутной, секундной стрелок и деления дня/ночи.
-
-    Attributes:
-        hour_angle (float): Угол часовой стрелки в градусах.
-        minute_angle (float): Угол минутной стрелки в градусах.
-        second_angle (float): Угол секундной стрелки в градусах.
-        day_night_division (DayNightDivision): Деление дня/ночи (AM или PM).
-    """
-    hour_angle: float
-    minute_angle: float
-    second_angle: float
-    day_night_division: DayNightDivision
-
 
 class DigitalClockAdapter(BaseDigitalClock):
     """
