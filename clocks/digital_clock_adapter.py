@@ -1,8 +1,15 @@
 from datetime import datetime
+from dataclasses import dataclass
 from interfaces.base_digital_clock import BaseDigitalClock
 from clocks.analog_clock import AnalogClock
 from consts.date_consts import DayNightDivision
 
+@dataclass
+class ClockAngles:
+    hour_angle: float
+    minute_angle: float
+    second_angle: float
+    day_night_division: DayNightDivision
 
 class DigitalClockAdapter(BaseDigitalClock):
     """
@@ -25,16 +32,16 @@ class DigitalClockAdapter(BaseDigitalClock):
         if not isinstance(date, datetime):
             raise ValueError("Входные данные должны быть в формате datetime.")
 
-        hour_angle, minute_angle, second_angle, day_night_division = self._convert_to_angles(date)
+        angles = self._convert_to_angles(date)
 
         self.analog_clock.set_date_time(
             year=date.year,
             month=date.month,
             day=date.day,
-            hour_angle=hour_angle,
-            minute_angle=minute_angle,
-            second_angle=second_angle,
-            day_night_division=day_night_division
+            hour_angle=angles.hour_angle,
+            minute_angle=angles.minute_angle,
+            second_angle=angles.second_angle,
+            day_night_division=angles.day_night_division
         )
 
     def get_date_time(self) -> datetime:
@@ -74,18 +81,18 @@ class DigitalClockAdapter(BaseDigitalClock):
         """
         return self.analog_clock.get_second_angle()
 
-    def _convert_to_angles(self, date: datetime):
+    def _convert_to_angles(self, date: datetime) -> ClockAngles:
         """
         Преобразует datetime в углы и деление дня/ночи.
 
         :param date: дата и время в формате datetime.
-        :return: углы для часов, минут, секунд и деление дня/ночи.
+        :return: объект ClockAngles с углами для часов, минут, секунд и делением дня/ночи.
         """
         hour_angle = (date.hour % 12) * 30  # 360 / 12
         minute_angle = date.minute * 6  # 360 / 60
         second_angle = date.second * 6  # 360 / 60
         day_night_division = DayNightDivision.AM if date.hour < 12 else DayNightDivision.PM
-        return hour_angle, minute_angle, second_angle, day_night_division
+        return ClockAngles(hour_angle, minute_angle, second_angle, day_night_division)
 
     def _convert_angles_to_time(self):
         """
