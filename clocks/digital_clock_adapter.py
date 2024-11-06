@@ -4,7 +4,7 @@ from datetime import datetime
 from interfaces.base_digital_clock import BaseDigitalClock
 from interfaces.base_analog_clock import BaseAnalogClock
 from consts.date_consts import DayNightDivision
-from consts.clock_constants import ClockConstants  # Импорт нового класса с константами
+from consts.clock_consts import ClockConstants  # Импорт нового класса с константами
 from clocks.dto.clock_angles_dto import ClockAngles  # Импорт DTO
 
 class DigitalClockAdapter(BaseDigitalClock):

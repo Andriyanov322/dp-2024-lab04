@@ -1,4 +1,4 @@
-# consts/clock_constants.py
+# consts/clock_consts.py
 
 class ClockConstants:
     """
