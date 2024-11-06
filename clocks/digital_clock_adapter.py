@@ -4,6 +4,15 @@ from interfaces.base_digital_clock import BaseDigitalClock
 from clocks.analog_clock import AnalogClock
 from consts.date_consts import DayNightDivision
 
+# Константы для преобразования времени в углы
+HOURS_TO_DEGREES = 30  # 360 / 12 часов
+MINUTES_TO_DEGREES = 6  # 360 / 60 минут
+SECONDS_TO_DEGREES = 6  # 360 / 60 секунд
+
+# Константы для работы с временем
+HOURS_IN_HALF_DAY = 12
+MIDNIGHT_HOUR = 0
+
 @dataclass
 class ClockAngles:
     hour_angle: float
@@ -88,10 +97,10 @@ class DigitalClockAdapter(BaseDigitalClock):
         :param date: дата и время в формате datetime.
         :return: объект ClockAngles с углами для часов, минут, секунд и делением дня/ночи.
         """
-        hour_angle = (date.hour % 12) * 30  # 360 / 12
-        minute_angle = date.minute * 6  # 360 / 60
-        second_angle = date.second * 6  # 360 / 60
-        day_night_division = DayNightDivision.AM if date.hour < 12 else DayNightDivision.PM
+        hour_angle = (date.hour % HOURS_IN_HALF_DAY) * HOURS_TO_DEGREES
+        minute_angle = date.minute * MINUTES_TO_DEGREES
+        second_angle = date.second * SECONDS_TO_DEGREES
+        day_night_division = DayNightDivision.AM if date.hour < HOURS_IN_HALF_DAY else DayNightDivision.PM
         return ClockAngles(hour_angle, minute_angle, second_angle, day_night_division)
 
     def _convert_angles_to_time(self):
@@ -100,14 +109,14 @@ class DigitalClockAdapter(BaseDigitalClock):
 
         :return: кортеж из часов, минут и секунд.
         """
-        hour = int(self.analog_clock.get_hour_angle() / 30) % 12  # 30 degrees per hour
-        minute = int(self.analog_clock.get_minute_angle() / 6)  # 6 degrees per minute
-        second = int(self.analog_clock.get_second_angle() / 6)  # 6 degrees per second
+        hour = int(self.analog_clock.get_hour_angle() / HOURS_TO_DEGREES) % HOURS_IN_HALF_DAY
+        minute = int(self.analog_clock.get_minute_angle() / MINUTES_TO_DEGREES)
+        second = int(self.analog_clock.get_second_angle() / SECONDS_TO_DEGREES)
 
         # Обработка AM/PM
-        if self.analog_clock.day_night_division == DayNightDivision.PM and hour != 12:
-            hour += 12
-        if self.analog_clock.day_night_division == DayNightDivision.AM and hour == 12:
-            hour = 0
+        if self.analog_clock.day_night_division == DayNightDivision.PM and hour != HOURS_IN_HALF_DAY:
+            hour += HOURS_IN_HALF_DAY
+        if self.analog_clock.day_night_division == DayNightDivision.AM and hour == HOURS_IN_HALF_DAY:
+            hour = MIDNIGHT_HOUR
 
         return hour, minute, second
